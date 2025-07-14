@@ -1,8 +1,14 @@
 // src/app/api/predict/route.js
+import { QLOO_BASE_URL, QLOO_ENTITY_MOVIE, GENRE_TAGS } from '@/lib/qloo';
+
 export async function POST(req) {
   const apiKey = process.env.QLOO_API_KEY;
+  const { genre } = await req.json();
 
-  const qlooUrl = 'https://hackathon.api.qloo.com/v2/insights/?filter.type=urn:entity:movie&filter.tags=urn:tag:genre:media:comedy';
+  const genreTag = GENRE_TAGS[genre] || GENRE_TAGS.comedy;
+
+  const qlooUrl = `${QLOO_BASE_URL}?filter.type=${QLOO_ENTITY_MOVIE}&filter.tags=${genreTag}`;
+  console.log("qlooUrl -> ", qlooUrl);
 
   try {
     const qlooRes = await fetch(qlooUrl, {
@@ -22,7 +28,7 @@ export async function POST(req) {
         headers: { 'Content-Type': 'application/json' },
       });
     } catch (jsonErr) {
-      console.error('Error parsing JSON:', text);
+      console.error('Error parsing JSON from Qloo:', text);
       return new Response(JSON.stringify({ error: 'Invalid JSON from Qloo' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -30,7 +36,7 @@ export async function POST(req) {
     }
 
   } catch (err) {
-    console.error('Error while querying Qloo:', err);
+    console.error('Request to Qloo failed:', err);
     return new Response(JSON.stringify({ error: 'Request to Qloo failed' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

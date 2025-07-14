@@ -7,6 +7,7 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [genre, setGenre] = useState('comedy');
 
   const handleSubmit = async (e) => {
     setLoading(true);
@@ -18,7 +19,10 @@ export default function Home() {
       const res = await fetch('/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tastes: input.split(',').map(t => t.trim()) }),
+        body: JSON.stringify({
+          tastes: input.split(',').map(t => t.trim()),
+          genre
+        }),
       });
 
       const data = await res.json();
@@ -91,6 +95,17 @@ export default function Home() {
             onChange={(e) => setInput(e.target.value)}
             className="border rounded px-4 py-2"
           />
+          <select
+            value={genre}
+            onChange={(e) => setGenre(e.target.value)}
+            className="border rounded px-4 py-2"
+          >
+            <option value="comedy">Comedy</option>
+            <option value="horror">Horror</option>
+            <option value="sci_fi">Sci-Fi</option>
+            <option value="drama">Drama</option>
+            <option value="action">Action</option>
+          </select>
           <button type="submit" className="bg-black text-white px-4 py-2 rounded">
             Generate
           </button>
