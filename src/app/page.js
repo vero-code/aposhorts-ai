@@ -1,9 +1,40 @@
+// src/app/page.js
+"use client";
+import { useState } from "react";
 import Image from "next/image";
 
 export default function Home() {
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handleSubmit = async (e) => {
+    setLoading(true);
+    setResult(null);
+
+    e.preventDefault();
+
+    try {
+      const res = await fetch('/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tastes: input.split(',').map(t => t.trim()) }),
+      });
+
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+      setResult({ error: 'Failed to fetch recommendations.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        <h1 className="text-2xl font-bold">ApoShorts AI. Apocalypse by Taste.</h1>
         <Image
           className="dark:invert"
           src="/next.svg"
@@ -50,6 +81,25 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+
+        {/*  User input */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Enter your tastes (e.g. Blade Runner, Pho, Lana Del Rey)"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="border rounded px-4 py-2"
+          />
+          <button type="submit" className="bg-black text-white px-4 py-2 rounded">
+            Generate
+          </button>
+        </form>
+        {result && (
+          <pre className="bg-gray-100 p-4 mt-4 text-sm w-full max-w-md overflow-auto">
+            {JSON.stringify(result, null, 2)}
+          </pre>
+        )}
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a
