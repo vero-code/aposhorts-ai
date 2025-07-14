@@ -19,25 +19,23 @@ export async function POST(req) {
       },
     });
 
-    const text = await qlooRes.text();
+    const { results } = await qlooRes.json();
 
-    try {
-      const data = JSON.parse(text);
-      return new Response(JSON.stringify(data), {
-        status: qlooRes.status,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    } catch (jsonErr) {
-      console.error('Error parsing JSON from Qloo:', text);
-      return new Response(JSON.stringify({ error: 'Invalid JSON from Qloo' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    const simplified = results.entities.slice(0, 5).map(entity => ({
+      title: entity.name,
+      year: entity.properties.release_year,
+      description: entity.properties.description,
+      image: entity.properties.image?.url,
+    }));
+
+    return new Response(JSON.stringify(simplified), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
 
   } catch (err) {
-    console.error('Request to Qloo failed:', err);
-    return new Response(JSON.stringify({ error: 'Request to Qloo failed' }), {
+    console.error('Qloo API Error:', err);
+    return new Response(JSON.stringify({ error: 'Failed to fetch or format results' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
