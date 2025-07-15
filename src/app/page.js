@@ -8,14 +8,16 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [genre, setGenre] = useState('comedy');
+  const [geminiOutput, setGeminiOutput] = useState('');
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     setResult(null);
-
-    e.preventDefault();
+    setGeminiOutput('');
 
     try {
+      // 1. Query to Qloo
       const res = await fetch('/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -27,6 +29,21 @@ export default function Home() {
 
       const data = await res.json();
       setResult(data);
+      console.log("Qloo API Response Data:", data);
+
+      // 2. Request to Google Gemini
+      if (Array.isArray(data) && data.length > 0) {
+        const geminiRes = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            movies: data,
+          }),
+        });
+
+        const geminiData = await geminiRes.json();
+        setGeminiOutput(geminiData.result);
+      }
     } catch (err) {
       console.error(err);
       setResult({ error: 'Failed to fetch recommendations.' });
@@ -114,6 +131,12 @@ export default function Home() {
           <pre className="bg-gray-100 p-4 mt-4 text-sm w-full max-w-md overflow-auto">
             {JSON.stringify(result, null, 2)}
           </pre>
+        )}
+        {geminiOutput && (
+          <div className="bg-green-100 p-4 mt-4 text-sm w-full max-w-md rounded">
+            <h3 className="font-bold mb-2">Gemini Output</h3>
+            <p>{geminiOutput}</p>
+          </div>
         )}
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
