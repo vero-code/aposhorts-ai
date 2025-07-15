@@ -22,6 +22,20 @@ export default function Home() {
   const [tvShow, setTVShow] = useState('');
   const [game, setGame] = useState('');
 
+  const CATEGORY_URN_MAP = {
+    album: "album",
+    artist: "artist",
+    book: "book",
+    brand: "brand",
+    destination: "destination",
+    movie: "movie",
+    person: "person",
+    place: "place",
+    podcast: "podcast",
+    tv_show: "tv_show",
+    video_game: "videogame",
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -30,19 +44,23 @@ export default function Home() {
 
     // 1. Collecting tastes
     const rawTastes = [
-      { category: "album", value: album },
-      { category: "artist", value: artist },
-      { category: "book", value: book },
-      { category: "brand", value: brand },
-      { category: "destination", value: destination },
-      { category: "movie", value: movie },
-      { category: "person", value: person },
-      { category: "place", value: place },
-      { category: "podcast", value: podcast },
-      { category: "tv_show", value: tvShow },
-      { category: "video_game", value: game },
-    ].filter(item => item.value.trim() !== '');
-    console.log(rawTastes);
+      { key: "album", value: album },
+      { key: "artist", value: artist },
+      { key: "book", value: book },
+      { key: "brand", value: brand },
+      { key: "destination", value: destination },
+      { key: "movie", value: movie },
+      { key: "person", value: person },
+      { key: "place", value: place },
+      { key: "podcast", value: podcast },
+      { key: "tv_show", value: tvShow },
+      { key: "video_game", value: game },
+    ]
+      .filter(item => item.value.trim() !== '')
+      .map(item => ({
+        category: CATEGORY_URN_MAP[item.key],
+        value: item.value,
+      }));
 
     try {
       // 2. For each taste - search entity_id via /search
@@ -55,21 +73,18 @@ export default function Home() {
       const data = await res.json();
       console.log('✅ Received entity_ids:', data.resolvedEntities);
 
-      // // 4. Query to Qloo
-      // const res = await fetch('/api/predict', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     tastes: input.split(',').map(t => t.trim()),
-      //     genre
-      //   }),
-      // });
-      //
-      // const data = await res.json();
-      // setResult(data);
-      // console.log("Qloo API Response Data:", data);
+      // 3. Query to Qloo
+      const insightsRes = await fetch('/api/insights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data.resolvedEntities),
+      });
 
-      // 5. Request to Google Gemini
+      const insightsData = await insightsRes.json();
+      console.log("🧠 Received insights:", insightsData);
+      setResult(insightsData.insights);
+
+      // 4. Request to Google Gemini
       // if (Array.isArray(data) && data.length > 0) {
       //   const geminiRes = await fetch('/api/generate', {
       //     method: 'POST',
@@ -98,43 +113,17 @@ export default function Home() {
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <h1 className="text-2xl font-bold">ApoShorts AI. Apocalypse by Taste.</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-
         {/*  User input */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md">
           <input type="text" placeholder="Album (e.g. Abbey Road)" className="border rounded px-4 py-2" onChange={(e) => setAlbum(e.target.value)} />
           <input type="text" placeholder="Artist (e.g. Lana Del Rey)" className="border rounded px-4 py-2" onChange={(e) => setArtist(e.target.value)} />
           <input type="text" placeholder="Book (e.g. 1984)" className="border rounded px-4 py-2" onChange={(e) => setBook(e.target.value)} />
           <input type="text" placeholder="Brand (e.g. Nike)" className="border rounded px-4 py-2" onChange={(e) => setBrand(e.target.value)} />
-          <input type="text" placeholder="Destination (e.g. Iceland)" className="border rounded px-4 py-2" onChange={(e) => setDestination(e.target.value)} />
+          <input type="text" placeholder="Destination (e.g. Tokyo)" className="border rounded px-4 py-2" onChange={(e) => setDestination(e.target.value)} />
           <input type="text" placeholder="Movie (e.g. Blade Runner)" className="border rounded px-4 py-2" onChange={(e) => setMovie(e.target.value)} />
           <input type="text" placeholder="Person (e.g. Elon Musk)" className="border rounded px-4 py-2" onChange={(e) => setPerson(e.target.value)} />
-          <input type="text" placeholder="Place (e.g. Balthazar)" className="border rounded px-4 py-2" onChange={(e) => setPlace(e.target.value)} />
-          <input type="text" placeholder="Podcast (e.g. The Daily)" className="border rounded px-4 py-2" onChange={(e) => setPodcast(e.target.value)} />
+          <input type="text" placeholder="Place (e.g. Machu Picchu)" className="border rounded px-4 py-2" onChange={(e) => setPlace(e.target.value)} />
+          <input type="text" placeholder="Podcast (e.g. This American Life)" className="border rounded px-4 py-2" onChange={(e) => setPodcast(e.target.value)} />
           <input type="text" placeholder="TV Show (e.g. Black Mirror)" className="border rounded px-4 py-2" onChange={(e) => setTVShow(e.target.value)} />
           <input type="text" placeholder="Video Game (e.g. The Last of Us)" className="border rounded px-4 py-2" onChange={(e) => setGame(e.target.value)} />
           <button type="submit" className="bg-black text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed" disabled={loading}>
