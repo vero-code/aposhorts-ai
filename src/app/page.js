@@ -43,10 +43,13 @@ export default function Home() {
 
         const geminiData = await geminiRes.json();
         setGeminiOutput(geminiData.result);
+      } else {
+        console.log("No entities received from Qloo API or data is not an array.");
+        setResult({ error: 'No relevant recommendations found from Qloo. Try different tastes or genre.' });
       }
     } catch (err) {
-      console.error(err);
-      setResult({ error: 'Failed to fetch recommendations.' });
+      console.error("Caught an error in handleSubmit:", err);
+      setResult({ error: `Failed to fetch recommendations: ${err.message}. Please check console for details.` });
     } finally {
       setLoading(false);
     }
@@ -123,10 +126,21 @@ export default function Home() {
             <option value="drama">Drama</option>
             <option value="action">Action</option>
           </select>
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded">
-            Generate
+          <button
+            type="submit"
+            className="bg-black text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
+          >
+            {loading ? 'Generating...' : 'Generate'}
           </button>
         </form>
+
+        {loading && (
+          <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-lg text-center font-semibold">
+            Generating recommendations... Please wait.
+          </div>
+        )}
+
         {result && (
           <pre className="bg-gray-100 p-4 mt-4 text-sm w-full max-w-md overflow-auto">
             {JSON.stringify(result, null, 2)}
