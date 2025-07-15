@@ -10,43 +10,81 @@ export default function Home() {
   const [genre, setGenre] = useState('comedy');
   const [geminiOutput, setGeminiOutput] = useState('');
 
+  const [album, setAlbum] = useState('');
+  const [artist, setArtist] = useState('');
+  const [book, setBook] = useState('');
+  const [brand, setBrand] = useState('');
+  const [destination, setDestination] = useState('');
+  const [movie, setMovie] = useState('');
+  const [person, setPerson] = useState('');
+  const [place, setPlace] = useState('');
+  const [podcast, setPodcast] = useState('');
+  const [tvShow, setTVShow] = useState('');
+  const [game, setGame] = useState('');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setResult(null);
     setGeminiOutput('');
 
+    // 1. Collecting tastes
+    const rawTastes = [
+      { category: "album", value: album },
+      { category: "artist", value: artist },
+      { category: "book", value: book },
+      { category: "brand", value: brand },
+      { category: "destination", value: destination },
+      { category: "movie", value: movie },
+      { category: "person", value: person },
+      { category: "place", value: place },
+      { category: "podcast", value: podcast },
+      { category: "tv_show", value: tvShow },
+      { category: "video_game", value: game },
+    ].filter(item => item.value.trim() !== '');
+    console.log(rawTastes);
+
     try {
-      // 1. Query to Qloo
-      const res = await fetch('/api/predict', {
+      // 2. For each taste - search entity_id via /search
+      const res = await fetch('/api/resolve-entities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tastes: input.split(',').map(t => t.trim()),
-          genre
-        }),
+        body: JSON.stringify(rawTastes),
       });
 
       const data = await res.json();
-      setResult(data);
-      console.log("Qloo API Response Data:", data);
+      console.log('✅ Received entity_ids:', data.resolvedEntities);
 
-      // 2. Request to Google Gemini
-      if (Array.isArray(data) && data.length > 0) {
-        const geminiRes = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            movies: data,
-          }),
-        });
+      // // 4. Query to Qloo
+      // const res = await fetch('/api/predict', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     tastes: input.split(',').map(t => t.trim()),
+      //     genre
+      //   }),
+      // });
+      //
+      // const data = await res.json();
+      // setResult(data);
+      // console.log("Qloo API Response Data:", data);
 
-        const geminiData = await geminiRes.json();
-        setGeminiOutput(geminiData.result);
-      } else {
-        console.log("No entities received from Qloo API or data is not an array.");
-        setResult({ error: 'No relevant recommendations found from Qloo. Try different tastes or genre.' });
-      }
+      // 5. Request to Google Gemini
+      // if (Array.isArray(data) && data.length > 0) {
+      //   const geminiRes = await fetch('/api/generate', {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify({
+      //       movies: data,
+      //     }),
+      //   });
+      //
+      //   const geminiData = await geminiRes.json();
+      //   setGeminiOutput(geminiData.result);
+      // } else {
+      //   console.log("No entities received from Qloo API or data is not an array.");
+      //   setResult({ error: 'No relevant recommendations found from Qloo. Try different tastes or genre.' });
+      // }
     } catch (err) {
       console.error("Caught an error in handleSubmit:", err);
       setResult({ error: `Failed to fetch recommendations: ${err.message}. Please check console for details.` });
@@ -59,26 +97,6 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <h1 className="text-2xl font-bold">ApoShorts AI. Apocalypse by Taste.</h1>
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
@@ -108,29 +126,18 @@ export default function Home() {
 
         {/*  User input */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md">
-          <input
-            type="text"
-            placeholder="Enter your tastes (e.g. Blade Runner, Pho, Lana Del Rey)"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="border rounded px-4 py-2"
-          />
-          <select
-            value={genre}
-            onChange={(e) => setGenre(e.target.value)}
-            className="border rounded px-4 py-2"
-          >
-            <option value="comedy">Comedy</option>
-            <option value="horror">Horror</option>
-            <option value="sci_fi">Sci-Fi</option>
-            <option value="drama">Drama</option>
-            <option value="action">Action</option>
-          </select>
-          <button
-            type="submit"
-            className="bg-black text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
-          >
+          <input type="text" placeholder="Album (e.g. Abbey Road)" className="border rounded px-4 py-2" onChange={(e) => setAlbum(e.target.value)} />
+          <input type="text" placeholder="Artist (e.g. Lana Del Rey)" className="border rounded px-4 py-2" onChange={(e) => setArtist(e.target.value)} />
+          <input type="text" placeholder="Book (e.g. 1984)" className="border rounded px-4 py-2" onChange={(e) => setBook(e.target.value)} />
+          <input type="text" placeholder="Brand (e.g. Nike)" className="border rounded px-4 py-2" onChange={(e) => setBrand(e.target.value)} />
+          <input type="text" placeholder="Destination (e.g. Iceland)" className="border rounded px-4 py-2" onChange={(e) => setDestination(e.target.value)} />
+          <input type="text" placeholder="Movie (e.g. Blade Runner)" className="border rounded px-4 py-2" onChange={(e) => setMovie(e.target.value)} />
+          <input type="text" placeholder="Person (e.g. Elon Musk)" className="border rounded px-4 py-2" onChange={(e) => setPerson(e.target.value)} />
+          <input type="text" placeholder="Place (e.g. Balthazar)" className="border rounded px-4 py-2" onChange={(e) => setPlace(e.target.value)} />
+          <input type="text" placeholder="Podcast (e.g. The Daily)" className="border rounded px-4 py-2" onChange={(e) => setPodcast(e.target.value)} />
+          <input type="text" placeholder="TV Show (e.g. Black Mirror)" className="border rounded px-4 py-2" onChange={(e) => setTVShow(e.target.value)} />
+          <input type="text" placeholder="Video Game (e.g. The Last of Us)" className="border rounded px-4 py-2" onChange={(e) => setGame(e.target.value)} />
+          <button type="submit" className="bg-black text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed" disabled={loading}>
             {loading ? 'Generating...' : 'Generate'}
           </button>
         </form>
