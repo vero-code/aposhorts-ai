@@ -23,11 +23,24 @@ export async function POST(req) {
 
       const data = await res.json();
 
+      const processedResults = {
+        entities: (data.results?.entities || []).map(insightEntity => ({
+          name: insightEntity.name,
+          entity_id: insightEntity.entity_id,
+          type: insightEntity.type,
+          subtype: insightEntity.subtype,
+          properties: {
+            description: insightEntity.properties?.description,
+            image: insightEntity.properties?.image,
+          },
+        })),
+      };
+
       insights.push({
         name: entity.name,
         category: entity.category,
         entity_id: entity.entity_id,
-        insights: data.results || [],
+        insights: processedResults,
       });
 
       console.log(`✅ Insights were obtained for ${entity.name}:`, JSON.stringify(data.results, null, 2));
