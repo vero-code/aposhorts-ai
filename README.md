@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ⚡️ ApoShorts AI — Apocalypse by Taste
+![Next.js](https://img.shields.io/badge/built%20with-Next.js-black) ![Qloo API](https://img.shields.io/badge/powered%20by-Qloo%20API-purple) ![Gemini](https://img.shields.io/badge/LLM-Google%20Gemini-brightgreen)
 
-## Getting Started
+What if your tastes could predict the end of the world?
 
-First, run the development server:
+**ApoShorts AI** is an AI-powered recommendation engine that crafts short cinematic experiences based on what you love — books, brands, video games, TV shows, artists, etc. It pulls insights from your favorites and turns them into personalized apocalypse scenarios. Because the world might end — but it’ll end in style. 💥
 
+Created for [Qloo LLM Hackathon](https://devpost.com/software/aposhorts-ai).
+
+
+## 🚀 How it works
+
+1. **You Tell What You Love**
+    - Drop your faves: albums, books, brands, podcasts, destinations, games... anything.
+2. **Qloo Knows Your Soul**
+    - Uses the [Qloo API](https://qloo.com) to find deep cultural connections based on your tastes.
+3. **Gemini Imagines the Apocalypse**
+    - Passes everything to **Google Gemini** (yes, the AI), and it scripts a mini-movie — a custom apocalypse just for you.
+4. **Boom. You Get a Narrative**
+    - A short text output that feels like a trailer to a movie that doesn’t exist. Yet. 👀
+
+
+## 🧠 Built With
+
+- ⚙️ **Next.js (App Router)**
+- 🌐 **Qloo API v2** — for entity insights
+- 🤖 **Google Gemini** — for generative storytelling
+- 🧪 **Tailwind CSS** — for styling that's fast, clean, and fun
+- 🔐 `.env` — for your secret API keys, duh
+
+
+## 🧨 Example Prompt
+
+> **You like:**  
+> 🎮 Counter-Strike  
+> 🎧 This American Life  
+> 📚 1984  
+> 👟 Nike
+
+> **Your apocalypse:**  
+> _"As digital soldiers glitch through VR battlefields, a voice from This American Life repeats Orwellian headlines. The last survivors wear Nike and watch the world burn — fashionably."_
+
+Yeah. It’s that weird. And that good.
+
+
+## 🔍 Use Case
+
+ApoShorts AI could power:
+- Personalized intros for streaming platforms
+- Cultural moodboards for creative teams
+- Taste-driven short-form content for entertainment marketing
+
+
+## 💾 Local Dev
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/aposhorts-ai.git
+cd aposhorts-ai
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up your `.env` file: `QLOO_API_KEY`,  `GEMINI_API_KEY`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+3. Start it up:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## 💡 Why This Project?
 
-To learn more about Next.js, take a look at the following resources:
+ApoShorts AI leverages **Qloo’s cultural graph** and **Google Gemini's generative intelligence** to craft personalized narratives. This approach transforms traditional recommendations, moving beyond basic filtering to create emotionally resonant and unique storytelling experiences based on individual tastes in music, films, brands, and more.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+I believe in exploring the creative potential of AI to deliver engaging and memorable content.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## 📍 License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is open-sourced under the MIT License. Feel free to explore, modify, and build upon this foundation for your own creative endeavors.

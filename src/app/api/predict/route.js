@@ -8,7 +8,7 @@ export async function POST(req) {
   const genreTag = GENRE_TAGS[genre] || GENRE_TAGS.comedy;
 
   const qlooUrl = `${QLOO_BASE_URL}?filter.type=${QLOO_ENTITY_MOVIE}&filter.tags=${genreTag}`;
-  console.log("qlooUrl -> ", qlooUrl);
+  // console.log("predict/route -> ", qlooUrl);
 
   try {
     const qlooRes = await fetch(qlooUrl, {

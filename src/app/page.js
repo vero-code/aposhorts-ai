@@ -71,9 +71,9 @@ export default function Home() {
       });
 
       const data = await res.json();
-      console.log('✅ Received entity_ids:', data.resolvedEntities);
+      // console.log('✅ Received entity_ids:', data.resolvedEntities);
 
-      // 3. Query to Qloo
+      // 3. Request insights in Qloo
       const insightsRes = await fetch('/api/insights', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,28 +81,26 @@ export default function Home() {
       });
 
       const insightsData = await insightsRes.json();
-      console.log("🧠 Received insights:", insightsData);
+      // console.log("🧠 Received insights from Qloo:", insightsData);
       setResult(insightsData.insights);
 
       // 4. Request to Google Gemini
-      // if (Array.isArray(data) && data.length > 0) {
-      //   const geminiRes = await fetch('/api/generate', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify({
-      //       movies: data,
-      //     }),
-      //   });
-      //
-      //   const geminiData = await geminiRes.json();
-      //   setGeminiOutput(geminiData.result);
-      // } else {
-      //   console.log("No entities received from Qloo API or data is not an array.");
-      //   setResult({ error: 'No relevant recommendations found from Qloo. Try different tastes or genre.' });
-      // }
+      if (insightsData && insightsData.insights && insightsData.insights.length > 0) {
+        const geminiRes = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(insightsData),
+        });
+
+        const geminiData = await geminiRes.json();
+        setGeminiOutput(geminiData.result);
+      } else {
+        console.log("No insights received from Qloo API.");
+        setGeminiOutput('No relevant recommendations found from Qloo. Try different interests.');
+      }
     } catch (err) {
       console.error("Caught an error in handleSubmit:", err);
-      setResult({ error: `Failed to fetch recommendations: ${err.message}. Please check console for details.` });
+      setResult({ error: `An error occurred: ${err.message}.` });
     } finally {
       setLoading(false);
     }
