@@ -20,6 +20,9 @@ export default function Home() {
   const [tvShow, setTVShow] = useState('');
   const [game, setGame] = useState('');
 
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoLoading, setVideoLoading] = useState(false);
+
   const CATEGORY_URN_MAP = {
     album: "album",
     artist: "artist",
@@ -104,6 +107,45 @@ export default function Home() {
     }
   };
 
+  const handleGenerate = async () => {
+    setVideoLoading(true);
+    setVideoUrl(null);
+
+    // Ideally, 'prompt' should be taken from geminiOutput
+    const videoPrompt = 'A majestic dragon flying over a cyberpunk city during an apocalypse.';
+
+    try {
+      const res = await fetch('/api/video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: videoPrompt,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.url) {
+        setVideoUrl(data.url);
+      } else {
+        let errorMessage = 'Video generation failed.';
+        if (data.error) {
+          errorMessage = `Video generation failed: ${data.error}`;
+          if (data.error.includes('credits')) {
+            errorMessage += ' Please check your RunwayML account for credits.';
+          }
+        }
+        console.error('❌ Video generation failed:', data);
+        alert(errorMessage);
+      }
+    } catch (err) {
+      console.error('❌ Unexpected error during video generation:', err);
+      alert('Unexpected error while generating video. Please try again later.');
+    } finally {
+      setVideoLoading(false);
+    }
+  };
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -143,6 +185,23 @@ export default function Home() {
           <div className="bg-green-100 p-4 mt-4 text-sm w-full max-w-md rounded">
             <h3 className="font-bold mb-2">ApoShorts AI Scenario:</h3>
             <ReactMarkdown>{geminiOutput}</ReactMarkdown>
+          </div>
+        )}
+
+        {/* Video generate */}
+        <h2 className="text-2xl mb-4">🎬 ApoShorts: Generate Test Video</h2>
+        <button
+          onClick={handleGenerate}
+          disabled={videoLoading}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          {videoLoading ? 'Generating...' : 'Generate Video'}
+        </button>
+
+        {videoUrl && (
+          <div className="mt-6">
+            <h2 className="text-lg mb-2">Your Video:</h2>
+            <video src={videoUrl} controls autoPlay className="w-full max-w-lg rounded shadow" />
           </div>
         )}
       </main>
