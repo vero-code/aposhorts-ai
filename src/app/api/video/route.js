@@ -1,48 +1,46 @@
+// src/app/api/video/route.js
 import { NextResponse } from 'next/server';
-import axios from 'axios';
+import Replicate from 'replicate';
 
-const POLLO_API_URL = 'https://pollo.ai/api/platform/generation/pollo/pollo-v1-6';
-const POLLO_API_KEY = process.env.POLLO_API_KEY;
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_KEY,
+});
+
+const MODEL = "zsxkib/animate-diff:269a616c8b0c2bbc12fc15fd51bb202b11e94ff0f7786c026aa905305c4ed9fb";
 
 export async function POST(req) {
   const { prompt } = await req.json();
 
-  if (!POLLO_API_KEY) {
-    console.error('POLLO_API_KEY is not set.');
-    return NextResponse.json({ error: 'Pollo API key is missing in environment config.' }, { status: 500 });
+  if (!process.env.REPLICATE_API_KEY) {
+    console.error("❌ Missing REPLICATE_API_KEY in environment.");
+    return NextResponse.json({ error: 'Server misconfiguration: missing token.' }, { status: 500 });
   }
 
-  const requestBody = {
-    input: {
-      prompt: prompt,
-      resolution: '480p',
-      length: 5,
-      seed: 123,
-    }
-  };
+  if (!prompt || prompt.trim() === "") {
+    return NextResponse.json({ error: 'Prompt is required.' }, { status: 400 });
+  }
 
   try {
-    const response = await axios.post(POLLO_API_URL, requestBody, {
-      headers: {
-        'x-api-key': POLLO_API_KEY,
-        'Content-Type': 'application/json'
-      }
-    });
+    const input = {
+      width: 512,
+      height: 512,
+      prompt: prompt,
+      negative_prompt: "",
+      num_frames: 16,
+      guidance_scale: 7.5,
+      fps: 8
+    };
 
-    const { taskId, status } = response.data;
+    const output = await replicate.run(MODEL, { input });
 
-    if (!taskId) {
-      throw new Error(`API call succeeded but no taskId returned. Full response: ${JSON.stringify(response.data)}`);
+    if (Array.isArray(output) && output.length > 0) {
+      return NextResponse.json({ url: output[0] });
+    } else {
+      throw new Error("No output returned from Replicate");
     }
 
-    return NextResponse.json({ taskId, status });
-
-  } catch (error) {
-    console.error('Pollo API error:', error.response?.data || error.message);
-
-    const errorMsg = error.response?.data?.message || 'Unknown error';
-    const statusCode = error.response?.status || 500;
-
-    return NextResponse.json({ error: errorMsg }, { status: statusCode });
+  } catch (err) {
+    console.error("❌ Replicate API error:", err);
+    return NextResponse.json({ error: err.message || 'Replicate API error' }, { status: 500 });
   }
 }
