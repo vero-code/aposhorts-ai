@@ -111,33 +111,9 @@ export default function Home() {
     setVideoLoading(true);
     setVideoUrl(null);
 
-    // Ideally, 'prompt' should be taken from geminiOutput
-    const videoPrompt = 'A majestic dragon flying over a cyberpunk city during an apocalypse.';
-
     try {
-      const res = await fetch('/api/video', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: videoPrompt,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.url) {
-        setVideoUrl(data.url);
-      } else {
-        let errorMessage = 'Video generation failed.';
-        if (data.error) {
-          errorMessage = `Video generation failed: ${data.error}`;
-          if (data.error.includes('credits')) {
-            errorMessage += ' Please check your RunwayML account for credits.';
-          }
-        }
-        console.error('❌ Video generation failed:', data);
-        alert(errorMessage);
-      }
+      const staticVideoUrl = '/demo/apocalypse-short.mp4';
+      setVideoUrl(staticVideoUrl);
     } catch (err) {
       console.error('❌ Unexpected error during video generation:', err);
       alert('Unexpected error while generating video. Please try again later.');

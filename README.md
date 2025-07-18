@@ -11,14 +11,17 @@ Created for [Qloo LLM Hackathon](https://devpost.com/software/aposhorts-ai).
 ## 🚀 How it works
 
 1. **You Tell What You Love**
-    - Drop your faves: albums, books, brands, podcasts, destinations, games... anything.
+- Drop your faves: albums, books, brands, podcasts, destinations, games... anything.
 2. **Qloo Knows Your Soul**
-    - Uses the [Qloo API](https://qloo.com) to find deep cultural connections based on your tastes.
+- Uses the [Qloo API](https://qloo.com) to find deep cultural connections based on your tastes.
 3. **Gemini Imagines the Apocalypse**
-    - Passes everything to **Google Gemini** (yes, the AI), and it scripts a mini-movie — a custom apocalypse just for you.
+- Passes everything to **Google Gemini** (yes, the AI), and it scripts a mini-movie — a custom apocalypse just for you.
 4. **Boom. You Get a Narrative**
-    - A short text output that feels like a trailer to a movie that doesn’t exist. Yet. 👀
+- A short text output that feels like a trailer to a movie that doesn’t exist. Yet. 👀
+5. **Short Video Demo**
+- For the MVP demo, a sample cinematic video is used to simulate the video generation process.
 
+> Services like Runway, Haiper AI (Pollo), and Replicate/AnimateDiff were evaluated and documented in the repo, but all required paid credits or API limitations.
 
 ## 🧠 Built With
 
