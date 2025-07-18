@@ -7,7 +7,7 @@ export async function POST(req) {
   // console.log("generate/route -> Received insights from Qloo:", JSON.stringify(insights, null, 2));
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const tasteProfileString = JSON.stringify(insights, null, 2);
 

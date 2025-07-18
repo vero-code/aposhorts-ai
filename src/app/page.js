@@ -2,26 +2,29 @@
 "use client";
 import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
+import { DrawCircleText } from "@/components/DrawCircleText";
+import { motion } from "framer-motion";
 
 export default function Home() {
+  const [tastes, setTastes] = useState({});
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [geminiOutput, setGeminiOutput] = useState('');
-
-  const [album, setAlbum] = useState('');
-  const [artist, setArtist] = useState('');
-  const [book, setBook] = useState('');
-  const [brand, setBrand] = useState('');
-  const [destination, setDestination] = useState('');
-  const [movie, setMovie] = useState('');
-  const [person, setPerson] = useState('');
-  const [place, setPlace] = useState('');
-  const [podcast, setPodcast] = useState('');
-  const [tvShow, setTVShow] = useState('');
-  const [game, setGame] = useState('');
-
   const [videoUrl, setVideoUrl] = useState(null);
   const [videoLoading, setVideoLoading] = useState(false);
+  const tasteFields = [
+    { key: "album", label: "Album (e.g. Abbey Road)" },
+    { key: "artist", label: "Artist (e.g. Lana Del Rey)" },
+    { key: "book", label: "Book (e.g. 1984)" },
+    { key: "brand", label: "Brand (e.g. Nike)" },
+    { key: "destination", label: "Destination (e.g. Tokyo)" },
+    { key: "movie", label: "Movie (e.g. Blade Runner)" },
+    { key: "person", label: "Person (e.g. Elon Musk)" },
+    { key: "place", label: "Place (e.g. Machu Picchu)" },
+    { key: "podcast", label: "Podcast (e.g. This American Life)" },
+    { key: "tvShow", label: "TV Show (e.g. Black Mirror)" },
+    { key: "game", label: "Video Game (e.g. The Last of Us)" },
+  ];
 
   const CATEGORY_URN_MAP = {
     album: "album",
@@ -33,8 +36,8 @@ export default function Home() {
     person: "person",
     place: "place",
     podcast: "podcast",
-    tv_show: "tv_show",
-    video_game: "videogame",
+    tvShow: "tv_show",
+    game: "videogame",
   };
 
   const handleSubmit = async (e) => {
@@ -44,23 +47,11 @@ export default function Home() {
     setGeminiOutput('');
 
     // 1. Collecting tastes
-    const rawTastes = [
-      { key: "album", value: album },
-      { key: "artist", value: artist },
-      { key: "book", value: book },
-      { key: "brand", value: brand },
-      { key: "destination", value: destination },
-      { key: "movie", value: movie },
-      { key: "person", value: person },
-      { key: "place", value: place },
-      { key: "podcast", value: podcast },
-      { key: "tv_show", value: tvShow },
-      { key: "video_game", value: game },
-    ]
-      .filter(item => item.value.trim() !== '')
-      .map(item => ({
-        category: CATEGORY_URN_MAP[item.key],
-        value: item.value,
+    const rawTastes = Object.entries(tastes)
+      .filter(([_, value]) => value.trim() !== '')
+      .map(([key, value]) => ({
+        category: CATEGORY_URN_MAP[key],
+        value,
       }));
 
     try {
@@ -122,68 +113,94 @@ export default function Home() {
     }
   };
 
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <h1 className="text-2xl font-bold">ApoShorts AI. Apocalypse by Taste.</h1>
+  const isSubmitDisabled =
+    loading ||
+    Object.values(tastes).every((value) => value.trim() === "");
 
-        {/*  User input */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md">
-          <input type="text" placeholder="Album (e.g. Abbey Road)" className="border rounded px-4 py-2" onChange={(e) => setAlbum(e.target.value)} />
-          <input type="text" placeholder="Artist (e.g. Lana Del Rey)" className="border rounded px-4 py-2" onChange={(e) => setArtist(e.target.value)} />
-          <input type="text" placeholder="Book (e.g. 1984)" className="border rounded px-4 py-2" onChange={(e) => setBook(e.target.value)} />
-          <input type="text" placeholder="Brand (e.g. Nike)" className="border rounded px-4 py-2" onChange={(e) => setBrand(e.target.value)} />
-          <input type="text" placeholder="Destination (e.g. Tokyo)" className="border rounded px-4 py-2" onChange={(e) => setDestination(e.target.value)} />
-          <input type="text" placeholder="Movie (e.g. Blade Runner)" className="border rounded px-4 py-2" onChange={(e) => setMovie(e.target.value)} />
-          <input type="text" placeholder="Person (e.g. Elon Musk)" className="border rounded px-4 py-2" onChange={(e) => setPerson(e.target.value)} />
-          <input type="text" placeholder="Place (e.g. Machu Picchu)" className="border rounded px-4 py-2" onChange={(e) => setPlace(e.target.value)} />
-          <input type="text" placeholder="Podcast (e.g. This American Life)" className="border rounded px-4 py-2" onChange={(e) => setPodcast(e.target.value)} />
-          <input type="text" placeholder="TV Show (e.g. Black Mirror)" className="border rounded px-4 py-2" onChange={(e) => setTVShow(e.target.value)} />
-          <input type="text" placeholder="Video Game (e.g. The Last of Us)" className="border rounded px-4 py-2" onChange={(e) => setGame(e.target.value)} />
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed" disabled={loading}>
-            {loading ? 'Generating...' : 'Generate'}
-          </button>
+  return (
+    <div className="flex flex-col items-center min-h-screen p-8 pb-20 gap-12 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-center w-full max-w-7xl container-aposhorts">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center mb-4"
+        >
+          <DrawCircleText></DrawCircleText>
+        </motion.h1>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-4"
+          >
+            {tasteFields.map(({ key, label }) => (
+              <input
+                key={key}
+                type="text"
+                placeholder={label}
+                className="input-aposhorts bg-zinc-900 text-white px-4 py-3 rounded-md border border-zinc-700 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
+                value={tastes[key] || ''}
+                onChange={(e) =>
+                  setTastes((prev) => ({ ...prev, [key]: e.target.value }))
+                }
+              />
+            ))}
+          </motion.div>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6 mb-4">
+            <button
+              type="submit"
+              disabled={isSubmitDisabled}
+              className="btn-aposhorts px-6 py-3 rounded-md bg-fuchsia-600 hover:bg-fuchsia-700 transition text-white text-base font-medium"
+            >
+              {loading ? '⏳ Generating...' : '📝 Generate Script'}
+            </button>
+
+            <button
+              onClick={handleGenerate}
+              disabled={videoLoading}
+              type="button"
+              className="btn-secondary flex items-center gap-2 px-4 py-2 rounded-md border border-zinc-600 hover:bg-zinc-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {videoLoading ? '⏳ Generating...' : '🎬 Generate Video'}
+            </button>
+          </div>
         </form>
 
         {loading && (
-          <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-lg text-center font-semibold">
+          <div className="mt-4 info-box text-center">
             Generating recommendations... Please wait.
           </div>
         )}
 
         {result && (
-          <div className="bg-gray-100 p-4 mt-4 text-sm w-full max-w-md rounded max-h-64 overflow-y-auto">
-            <h3 className="font-bold mb-2">Qloo Insights (for Devs/Judges):</h3>
-            <pre>{JSON.stringify(result, null, 2)}</pre>
+          <div className="result-box w-full">
+            <h3 className="font-bold mb-2 text-lg text-accent">Qloo Insights (for Devs/Judges):</h3>
+            <div className="text-sm whitespace-pre-wrap font-sans">
+              {JSON.stringify(result, null, 2)}
+            </div>
           </div>
         )}
         {geminiOutput && (
-          <div className="bg-green-100 p-4 mt-4 text-sm w-full max-w-md rounded">
-            <h3 className="font-bold mb-2">ApoShorts AI Scenario:</h3>
+          <div className="result-box w-full">
+            <h3 className="font-bold mb-2 text-lg text-accent">ApoShorts AI Scenario:</h3>
             <ReactMarkdown>{geminiOutput}</ReactMarkdown>
           </div>
         )}
 
         {/* Video generate */}
-        <h2 className="text-2xl mb-4">🎬 ApoShorts: Generate Test Video</h2>
-        <button
-          onClick={handleGenerate}
-          disabled={videoLoading}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {videoLoading ? 'Generating...' : 'Generate Video'}
-        </button>
-
         {videoUrl && (
-          <div className="mt-6">
-            <h2 className="text-lg mb-2">Your Video:</h2>
-            <video src={videoUrl} controls autoPlay className="w-full max-w-lg rounded shadow" />
+          <div className="mt-6 w-full text-center">
+            <h2 className="text-lg mb-4 text-foreground">📽 Your script is ready - watch:</h2>
+            <video src={videoUrl} controls autoPlay className="w-full max-w-lg mx-auto rounded-lg shadow-xl border border-accent" />
           </div>
         )}
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          className="mt-10 text-sm text-zinc-400 hover:text-white underline"
           href="https://github.com/vero-code/aposhorts-ai"
           target="_blank"
           rel="noopener noreferrer"
