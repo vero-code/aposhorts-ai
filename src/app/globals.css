@@ -12,6 +12,8 @@
   --error: #ff4d4d;
   --gradient-start: #3A3A3A;
   --gradient-end: #2B2B2B;
+  --font-geist-sans: 'Geist Sans', sans-serif;
+  --font-geist-mono: 'Geist Mono', monospace;
 }
 
 @theme inline {
@@ -32,7 +34,7 @@ body {
   background: linear-gradient(to bottom right, var(--gradient-start), var(--gradient-end));
   background-attachment: fixed;
   color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
+  font-family: var(--font-geist-sans);
   min-height: 100vh;
 }
 
@@ -57,7 +59,7 @@ body {
   box-shadow: 0 0 0 3px rgba(176, 62, 255, 0.3);
 }
 
-/* Custom button style */
+/* Generate Script button */
 .btn-aposhorts {
   background-color: var(--accent);
   color: #fff;
@@ -75,12 +77,7 @@ body {
   transform: translateY(-2px);
 }
 
-.btn-aposhorts:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
+/* Generate Video button */
 .btn-secondary {
   background-color: #2563eb;
   color: #ffffff;
@@ -97,7 +94,25 @@ body {
   transform: translateY(-2px);
 }
 
-.btn-secondary:disabled {
+/* Reset button */
+.btn-reset {
+  background-color: #3f3f46;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-reset:hover {
+  background-color: #52525b;
+  transform: translateY(-2px);
+}
+
+.btn-aposhorts:disabled,
+.btn-secondary:disabled,
+.btn-reset:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -111,24 +126,6 @@ body {
   padding: 3rem 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(51, 51, 51, 0.5);
-}
-
-.heading-aposhorts {
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 2.5rem;
-  background: linear-gradient(90deg, #b03eff, #8a2be2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 15px rgba(176, 62, 255, 0.6);
-}
-
-.section-heading {
-  font-size: 1.75rem;
-  color: var(--accent);
-  text-align: center;
-  margin-top: 3rem;
-  margin-bottom: 1.5rem;
 }
 
 .info-box {
@@ -151,14 +148,4 @@ body {
   max-height: 250px;
   overflow-y: auto;
   box-shadow: 0 5px 15px rgba(176, 62, 255, 0.2);
-}
-
-.footer-link {
-  color: #999;
-  font-size: 0.9rem;
-  transition: color 0.2s ease;
-}
-
-.footer-link:hover {
-  color: var(--accent);
 }
