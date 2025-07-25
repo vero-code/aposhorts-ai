@@ -23,6 +23,12 @@ Created for [Qloo LLM Hackathon](https://devpost.com/software/aposhorts-ai).
 
 > Services like Runway, Haiper AI (Pollo), and Replicate/AnimateDiff were evaluated and documented in the repo, but all required paid credits or API limitations.
 
+## 🗺️ Architecture Overview
+
+Below is a high-level architecture flow of how user input flows through the system, from cultural insights to generative storytelling:
+
+![Architecture Flow](./public/architecture-flow.png)
+
 ## 🧠 Built With
 
 - ⚙️ **Next.js (App Router)**
